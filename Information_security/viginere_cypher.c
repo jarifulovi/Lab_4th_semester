@@ -1,12 +1,13 @@
 #include<stdio.h>
 #include<string.h>
 #include<ctype.h>
-char charTable[26][27];
+#define SIZE 26
+char charTable[SIZE][SIZE+1];
 
 
 void printTable(){
-    for(int i=0;i<26;i++){
-        for(int j=0;j<26;j++){
+    for(int i=0;i<SIZE;i++){
+        for(int j=0;j<SIZE;j++){
             printf("%c ",charTable[i][j]);
         }
         printf("\n");
@@ -16,10 +17,10 @@ void printTable(){
 void generateTable(){
 
     int i,j;
-    for(i=0;i<26;i++){
+    for(i=0;i<SIZE;i++){
       
-        for(j=0;j<26;j++){
-            int character = 'a' + ((i+j) % 26);
+        for(j=0;j<SIZE;j++){
+            int character = 'a' + ((i+j) % SIZE);
             charTable[i][j] = character;
         }
         charTable[i][j] = '\0';
@@ -77,7 +78,7 @@ void decryption(char keyword[100],char string[100],char decryptString[100]){
     {
         int row = 0;
         // Adjust for negative values
-        int col = (tolower(string[i]) - tolower(newKeyword[i]) + 26) % 26;
+        int col = (tolower(string[i]) - tolower(newKeyword[i]) + SIZE) % SIZE;
 
         decryptString[i] = charTable[row][col];
     }
