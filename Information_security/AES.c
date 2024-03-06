@@ -316,7 +316,6 @@ void inverseByteSubShiftRow(unsigned char *plainText) {
         temp[i] = inv_s[plainText[indices[i]]];
     }
 
-
     // Copy the result back to the plainText array
     for (int i = 0; i < 16; ++i) {
         plainText[i] = temp[i];
