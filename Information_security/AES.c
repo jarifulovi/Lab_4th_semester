@@ -166,30 +166,25 @@ unsigned char rcon[11] =
     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 
 };
 
-unsigned char * g(unsigned char wInput[4], int index) {
-    unsigned char *wReady = malloc(4);
+unsigned char g(unsigned char word[4], int index,int currentByte) {
     
-    // Right circular shift
-    unsigned char temp = wInput[0];
-    for (int i = 0; i < 3; i++) {
-        wInput[i] = wInput[i + 1];
+    // Left circular shift 
+    unsigned char last_element = word[3]; 
+    for (int i = 3; i > 0; i--) {
+        word[i] = word[i - 1]; 
     }
-    wInput[3] = temp;
+    word[0] = last_element; 
+
 
     // SubBytes transformation
     for (int i = 0; i < 4; i++) {
-        wInput[i] = s[wInput[i]];
+        word[i] = s[word[i]];
     }
 
     // XOR with Rcon
-    wInput[0] ^= rcon[index];
+    word[0] ^= rcon[index];
 
-    // Copy the result to wReady
-    for (int i = 0; i < 4; i++) {
-        wReady[i] = wInput[i];
-    }
-
-    return wReady;
+    return word[currentByte];
 }
 
 
@@ -211,7 +206,7 @@ unsigned char * keyExpansion(unsigned char key[16])
     int byteCount = 0; //this is to keep a count on the bytes of the expandedKey array
     
     // Set the key value to word first
-    for(int j=0;j<4;j++)
+    for(int j=0;j<4;j++) 
     {
         for(int k=0;k<4;k++)
         {
@@ -219,31 +214,32 @@ unsigned char * keyExpansion(unsigned char key[16])
             byteCount++;
         }
     }
+
     for(int l=4;l<44;l++)
     {
         if((l%4)==0)
         {
             for(int m=0;m<4;m++)
             {
-                words[l][m] = words[(l-4)][m] ^ g(words[l-1], (l/4))[m];
+                // GFÑI╩☻↨╛L£ºä]─╚Ñ
+                words[l][m] = words[(l-4)][m] ^ g(words[l-1], (l/4),m);
             }
         }
         else
         {
-            for(int n=0;n<4;n++)
+            for(int m=0;m<4;m++)
             {
-                words[l][n] = words[l-1][n] ^ words[l-4][n];
+                words[l][m] = words[l-1][m] ^ words[l-4][m];
             }
         }
     }
 
-    int loc=0;
+    byteCount=0;
     for(int i=0;i<44;i++ )
     {
         for(int j=0;j<4;j++)
         {
-            expandedKey[loc] = words[i][j];
-            loc++;
+            expandedKey[byteCount++] = words[i][j];
         }
     }
     return expandedKey;
@@ -252,6 +248,7 @@ unsigned char * keyExpansion(unsigned char key[16])
 void mixColumns(unsigned char * plainText)
 {
     unsigned char * tempC = malloc(16);
+
 
     for (int i = 0; i < 4; ++i)
     {
@@ -334,7 +331,7 @@ void AESEncryption(unsigned char * plainText, unsigned char * expandedKey, unsig
     //key addition for the first round
     for (int i = 0; i < 16; ++i)
     {
-     state[i] = plainText[i] ^ expandedKey[i];
+        state[i] = plainText[i] ^ expandedKey[i];
     }
 
     //now the 9 rounds begin
@@ -395,7 +392,7 @@ int main() {
     unsigned char key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x97, 0x05, 0x1f, 0x16, 0xa8, 0x6d};
 
     // Example plaintext (128-bit block)
-    unsigned char plaintext[16] = {"password 123"};
+    unsigned char plaintext[16] = {"i am ovi"};
     // Allocate memory for expanded key
     unsigned char *expandedKey = malloc(176);
 
@@ -409,7 +406,7 @@ int main() {
     // Display the encrypted ciphertext
     printf("Encrypted Text: ");
     for (int i = 0; i < 16; i++) {
-        printf("%02x ", ciphertext[i]);
+        printf("%c", ciphertext[i]);
     }
     printf("\n");
 
