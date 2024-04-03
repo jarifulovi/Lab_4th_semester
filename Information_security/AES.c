@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <malloc.h> // Or <malloc/malloc.h>, depending on your system
 
 unsigned char s[256] = 
  {
@@ -166,7 +168,7 @@ unsigned char rcon[11] =
     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 
 };
 
-unsigned char g(unsigned char word[4], int index,int currentByte) {
+unsigned char * g(unsigned char word[4], int index) {
     
     // Left circular shift 
     unsigned char last_element = word[3]; 
@@ -184,7 +186,7 @@ unsigned char g(unsigned char word[4], int index,int currentByte) {
     // XOR with Rcon
     word[0] ^= rcon[index];
 
-    return word[currentByte];
+    return word;
 }
 
 
@@ -219,10 +221,11 @@ unsigned char * keyExpansion(unsigned char key[16])
     {
         if((l%4)==0)
         {
+            unsigned char * resultG = g(words[l-1], (l/4));
             for(int m=0;m<4;m++)
             {
                 // GFÑI╩☻↨╛L£ºä]─╚Ñ
-                words[l][m] = words[(l-4)][m] ^ g(words[l-1], (l/4),m);
+                words[l][m] = words[(l-4)][m] ^ resultG[m];
             }
         }
         else
@@ -387,42 +390,35 @@ void AESDecryption(unsigned char * cipher, unsigned char * expandedKey, unsigned
 
     free(state);
 }
+void Encryption(unsigned char * plainText, unsigned char * expandedKey, unsigned char * cipher){
+
+    printf("sizes : %d %d %d",strlen(plainText),strlen(expandedKey),strlen(cipher));
+}
 int main() {
     // Example key (128-bit key)
     unsigned char key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x97, 0x05, 0x1f, 0x16, 0xa8, 0x6d};
-
+   
+    unsigned char decryptedText[16];
     // Example plaintext (128-bit block)
-    unsigned char plaintext[16] = {"i am ovi"};
+    unsigned char plaintext[1000] = {"i am ovi and i am a student"};
+    // Allocate memory for ciphertext
+     // Allocate memory for ciphertext
+    unsigned char *ciphertext = malloc(strlen(plaintext) + 1); // Add one for null terminator
+    // Print the size of the allocated memory
+
+    printf("Size of allocated memory: %zu\n", sizeof(*ciphertext));
+
+    
     // Allocate memory for expanded key
     unsigned char *expandedKey = malloc(176);
-
+    
     // Expand the key using the keyExpansion function
     expandedKey = keyExpansion(key);
-
+   
     // Encrypt the plaintext
-    unsigned char ciphertext[16];
-    AESEncryption(plaintext, expandedKey, ciphertext);
-
-    // Display the encrypted ciphertext
-    printf("Encrypted Text: ");
-    for (int i = 0; i < 16; i++) {
-        printf("%c", ciphertext[i]);
-    }
-    printf("\n");
-
-    // Decrypt the ciphertext
-    unsigned char decryptedText[16];
-    AESDecryption(ciphertext, expandedKey, decryptedText);
-
-    // Display the decrypted plaintext
-    printf("Decrypted Text: ");
-    for (int i = 0; i < 16; i++) {
-        printf("%c", decryptedText[i]);
-    }
-    printf("\n");
-
-    // Free the allocated memory
-    free(expandedKey);
+    Encryption(plaintext, expandedKey , ciphertext);
+    //AESEncryption(plaintext, expandedKey, ciphertext);
+    //AESDecryption(ciphertext, expandedKey, decryptedText);
 
     return 0;
 }
