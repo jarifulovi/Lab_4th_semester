@@ -206,7 +206,7 @@ unsigned char * keyExpansion(unsigned char key[16]) {
         }
     }
 
-    unsigned char * expandedKey = new unsigned char[176];
+    unsigned char * plainKey = new unsigned char[176];
 
     int currentByte = 0;
     unsigned char * resultg;
@@ -234,11 +234,11 @@ unsigned char * keyExpansion(unsigned char key[16]) {
     int loc = 0;
     for (int i = 0; i < 44; i++) {
         for (int j = 0; j < 4; j++) {
-            expandedKey[loc] = words[i][j];
+            plainKey[loc] = words[i][j];
             loc++;
         }
     }
-    return expandedKey;
+    return plainKey;
 }
 
 void mixColumns(unsigned char * plainText)
@@ -281,10 +281,10 @@ void inverseMixedColumn (unsigned char * plainText)
 void byteSubShiftRow(unsigned char *state) {
     unsigned char tmp[16];
 
-    int shift[16] = {0, 5, 10, 15, 4, 9, 14, 3, 8, 13, 2, 7, 12, 1, 6, 11};
+    int shift_index[16] = {0, 5, 10, 15, 4, 9, 14, 3, 8, 13, 2, 7, 12, 1, 6, 11};
 
     for (int i = 0; i < 16; ++i) {
-        tmp[i] = s[state[shift[i]]];
+        tmp[i] = s[state[shift_index[i]]];
     }
 
     for (int i = 0; i < 16; ++i) {
@@ -297,10 +297,10 @@ void byteSubShiftRow(unsigned char *state) {
 void inverseByteSubShiftRow(unsigned char *plainText) {
     unsigned char temp[16];
 
-    int shift[16] = {0, 13, 10, 7, 4, 1, 14, 11, 8, 5, 2, 15, 12, 9, 6, 3};
+    int shift_index[16] = {0, 13, 10, 7, 4, 1, 14, 11, 8, 5, 2, 15, 12, 9, 6, 3};
 
     for (int i = 0; i < 16; ++i) {
-        temp[i] = inv_s[plainText[shift[i]]];
+        temp[i] = inv_s[plainText[shift_index[i]]];
     }
 
     for (int i = 0; i < 16; ++i) {
@@ -320,12 +320,10 @@ void AESEncryption(unsigned char * plainText, unsigned char * expandedKey, unsig
     for (int rounds = 1; rounds < 10; rounds++) {
         byteSubShiftRow(state);
         mixColumns(state);
-        int counter = 0;
         int loc = rounds * 16;
-        while (counter < 16) {
-            state[counter] ^= expandedKey[loc];
+        for(int i=0;i<16;i++) {
+            state[i] ^= expandedKey[loc];
             loc++;
-            counter++;
         }
     }
 
@@ -345,12 +343,11 @@ void AESDecryption(unsigned char * cipher, unsigned char * expandedKey, unsigned
 
     for (int rounds = 9; rounds > 0; rounds--) {
         inverseByteSubShiftRow(state);
-        int counter = 0;
+        
         int loc = 16 * rounds;
-        while (counter < 16) {
-            state[counter] ^= expandedKey[loc];
+        for(int i = 0;i < 16;i++) {
+            state[i] ^= expandedKey[loc];
             loc++;
-            counter++;
         }
         inverseMixedColumn(state);
     }
@@ -363,25 +360,37 @@ void AESDecryption(unsigned char * cipher, unsigned char * expandedKey, unsigned
 }
 
 
-int main() {
-    
-    ifstream inputFile("aes_plaintext.txt");
+string readFromFile(const std::string& filename) {
+    ifstream inputFile(filename);
     if (!inputFile) {
         cerr << "Error: Unable to open file!" << endl;
-        return 1;
+        return "";
     }
 
-    char plainText[200];
-    inputFile.getline(plainText, sizeof(plainText));
-    //cin.getline(plainText, sizeof(plainText));
-    cout << "Plaintext: " << plainText << endl;
+    string result;
+    string line;
+    while (getline(inputFile, line)) {
+        result += line + '\n';
+    }
+
     inputFile.close();
+    return result;
+}
+
+
+
+int main() {
+    
+  
+    string plainText;
+    plainText = readFromFile("aes_plaintext.txt");
+    cout << "Plaintext: " << plainText << endl;
 
     unsigned char Key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x97, 0x99, 0x89, 0xcf, 0xab, 0x12};
     unsigned char * expandedKey = keyExpansion(Key);
     
 
-    int originalLen = strlen((const char *)plainText);
+    int originalLen = plainText.size();
 
 	int paddedMessageLen = originalLen;
 
@@ -425,7 +434,7 @@ int main() {
     cout << endl;
     
     cout << "Decrypted Ciphertext: ";
-    cout << decrypted << endl << endl;
+    cout << decrypted << endl;
     
 
     //free memory 

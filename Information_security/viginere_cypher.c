@@ -62,7 +62,7 @@ void generateCypher(char keyword[100],char string[100],char cypher[100]){
 void decryption(char keyword[100],char string[100],char decryptString[100]){
     // first expand the keyword
    
-     // keyword should not be larger than string
+    // keyword should not be larger than string
     if(strlen(keyword)>strlen(string)){
         printf("keyword is small\n");
         return;

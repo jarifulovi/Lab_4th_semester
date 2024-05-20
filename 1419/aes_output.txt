@@ -1,0 +1,7 @@
+
+Encrypted Plaintext: 1f 60 ec a3 4a 38 50 1a 32 d8 44 19 2f b 1f 49 48 f2 d4 22 63 e9 31 b5 11 c5 94 1f da e0 24 b4 
+
+Decrypted in hex: 54 68 69 73 20 69 73 20 74 68 65 20 61 65 73 20 69 6e 70 75 74 a 0 0 0 0 0 0 0 0 0 0 
+
+Decrypted Ciphertext: This is the aes input
+

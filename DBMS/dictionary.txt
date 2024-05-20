@@ -1,0 +1,10 @@
+apple a fruit
+banana an edible fruit
+orange a citrus fruit
+grape a small round fruit
+peach a juicy fruit
+pear a sweet fruit
+kiwi a fuzzy fruit
+plum a soft juicy fruit
+cherry a small round fruit
+melon a large fruit

@@ -373,25 +373,37 @@ void AESDecryption(unsigned char * cipher, unsigned char * expandedKey, unsigned
     delete[] state;
 }
 
-int main(){
 
-    ifstream inputFile("aes_plaintext.txt");
+string readFromFile(const std::string& filename) {
+    ifstream inputFile(filename);
     if (!inputFile) {
         cerr << "Error: Unable to open file!" << endl;
-        return 1;
+        return "";
     }
 
-    char plainText[200];
-    inputFile.getline(plainText, sizeof(plainText));
-    //cin.getline(plainText, sizeof(plainText));
-    cout << "Plaintext: " << plainText << endl;
-    inputFile.close();
+    ostringstream oss;
+    string line;
+    while (getline(inputFile, line)) {
+        oss << line << endl;
+    }
 
+    inputFile.close();
+    return oss.str();
+}
+
+
+
+int main(){
+
+    string plainText;
+    plainText = readFromFile("aes_plaintext.txt");
+    cout << "Plaintext: " << plainText << endl;
+    
     unsigned char Key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x97, 0x99, 0x89, 0xcf, 0xab, 0x12};
     unsigned char * expandedKey = keyExpansion(Key);
     
 
-    int originalLen = strlen((const char *)plainText);
+    int originalLen = plainText.size();
 
 	int paddedMessageLen = originalLen;
 
